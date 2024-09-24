@@ -1,7 +1,39 @@
+
+
+
 // Import and require Pool (node-postgres)
 // We'll be creating a Connection Pool. Read up on the benefits here: https://node-postgres.com/features/pooling
 const { Pool } = require('pg');
 require("dotenv").config();
+const inquirer = require('inquirer');
+
+const actionQuestions = [{
+  name: "action",
+  type: "list",
+  message: "Welcome! What would you like to do?",
+  choices: [
+      "View all Employees",
+      "Add an Employee",
+      "Exit"
+  ]
+}];
+
+inquirer
+  .prompt(actionQuestions)
+  .then((answers) => {
+    // Use user feedback for... whatever!!
+    // connect to DB
+    // query for all emplpyees
+  })
+  .catch((error) => {
+    if (error.isTtyError) {
+      // Prompt couldn't be rendered in the current environment
+    } else {
+      // Something else went wrong
+    }
+  });
+
+
 // Connect to database
 const pool = new Pool(
   {

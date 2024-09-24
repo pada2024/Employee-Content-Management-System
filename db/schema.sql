@@ -19,7 +19,7 @@ CREATE TABLE employees (
 
 -- VALUES (11, 'John', 'Doe', 'Sales lead', 'Sales', 100000, 'null');
 
-SELECT * FROM employees;
+-- SELECT * FROM employees;
 
 -- CREATE TABLE first_name (
 --   id SERIAL PRIMARY KEY,
