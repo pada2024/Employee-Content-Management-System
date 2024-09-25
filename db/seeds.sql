@@ -1,16 +1,34 @@
 
 
-INSERT INTO employees (id, first_name, last_name, title, department, salary, manager);
-VALUES (1, 'John', 'Doe', 'Sales Lead', 'Sales', 100000, 'null'),
-       (2, 'Mike', 'Chan', 'Salesperson', 'Sales', 80000, 'John Doe'),
-       (3, 'Ashley', 'Rodriguez', 'Lead Engineer', 'Engineering', 150000, 'null'),
-       (4, 'Kevin', 'Tupik', 'Software Engineer', 'Engineering', 120000, 'Ashley Rdriguez'),
-       (5, 'Kunal', 'Tupik', 'Acount Manager', 'Finance', 160000, 'null' ),
-       (6, 'Malia', 'Brown', 'Accountant', 'Finance', 125000, 'Kunal Singh'),
-       (7, 'Sarah', 'Lour', 'Legal Team Lead', 'Legal', 250000, 'null'),
-       (8, 'Tom', 'Allen', 'Lawyer', 'Legal', 190000, 'Sarah Lourd');
+
+INSERT INTO department (id, name)
+VALUES (1, 'sales'),
+        (2, 'Engineering'),
+        (3, 'finance'),
+        (4, 'Legal');
+
+INSERT INTO role (id, title, salary, department_id)
+VALUES (1, 'Sales Lead', 100000, 1),
+       (2, 'Salesperson', 100000, 1),
+       (3, 'Lead Engineer', 150000, 2),
+       (4, 'Software Engineer', 120000, 2),
+       (5, 'Account Manager', 160000, 3),
+       (6, 'Accountant', 125000, 3),
+       (7, 'Legal Team Lead', 250000, 4),
+       (8, 'Lawyer', 190000, 4);
+
+
+
+INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
+VALUES (1, 'John', 'Doe', 1, null),
+       (2, 'Mike', 'Chan', 2, 1),
+       (3, 'Ashley', 'Rodriguez', 3, null),
+       (4, 'Kevin', 'Tupik', 4, 3),
+       (5, 'Kunal', 'Tupik', 5, null ),
+       (6, 'Malia', 'Brown', 6, 5),
+       (7, 'Sarah', 'Lour', 7, null),
+       (8, 'Tom', 'Allen', 8, 7);
 
        
-SELECT * FROM employee;           
 
 

@@ -3,15 +3,28 @@ CREATE DATABASE employee_db;
 
 \c employee_db;
 
-CREATE TABLE employees (
+CREATE TABLE department (
+id SERIAL PRIMARY KEY NOT NULL,
+name VARCHAR(25) NOT NULL
+);
+
+CREATE TABLE role (
+id SERIAL PRIMARY KEY NOT NULL,
+title VARCHAR(50) NOT NULL,
+salary INTEGER NOT NULL,
+department_id INTEGER NOT NULL
+
+);
+
+CREATE TABLE employee (
   id SERIAL PRIMARY KEY NOT NULL,
   first_name VARCHAR(25) NOT NULL,
   last_name VARCHAR(25) NOT NULL,
-  title VARCHAR(50) NOT NULL,
-  department VARCHAR(25) NOT NULL,
-  salary INTEGER NOT NULL,
-  manager VARCHAR(25) NOT NULL
+  role_id INTEGER NOT NULL,
+  manager_id INTEGER 
 );
+
+
 
 -- --Add Values into employees DB
 -- INSERT INTO employees (id, first_name, last_name, title, department, salary, manager
