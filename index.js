@@ -2,20 +2,19 @@
 
 
 // Import and require Pool (node-postgres)
-// We'll be creating a Connection Pool. Read up on the benefits here: https://node-postgres.com/features/pooling
 const { Pool } = require('pg');
 require("dotenv").config();
 const inquirer = require('inquirer');
 
 let db;
 
+// Connect to database
 async function connectDb() {
-  // Connect to database
   const pool = new Pool(
     {
-      // TODO: Enter PostgreSQL username
+      // PostgreSQL username
       user: process.env.USER,
-      // TODO: Enter PostgreSQL password
+      // PostgreSQL password
       password: process.env.PASSWORD,
       host: '127.0.0.1',
       database: 'employee_db',
@@ -27,7 +26,7 @@ async function connectDb() {
   db = await pool.connect()
 }
 
-async function mainMenu () {
+async function mainMenu() {
 
   const actionQuestions = [{
     name: "action",
@@ -41,17 +40,15 @@ async function mainMenu () {
       "Exit"
     ]
   }];
-  
+
+  // Inquirer prompt 
   inquirer
     .prompt(actionQuestions)
     .then((answers) => {
-  
+
       if (answers.action == "View all Departments") {
-        // const sql = `INSERT INTO movies (movie_name)
-        // VALUES ($1)`;
         const sql = "SELECT * FROM department";
-        // const params = [body.movie_name];
-  
+
         db.query(sql, (err, result) => {
           if (err) {
             console.log(err)
@@ -61,14 +58,26 @@ async function mainMenu () {
             mainMenu();
           }
         });
-  
+
       }
       else if (answers.action == "View all Roles") {
-        // const sql = `INSERT INTO movies (movie_name)
-        // VALUES ($1)`;
         const sql = "SELECT * FROM role";
-        // const params = [body.movie_name];
-  
+console.log('sql', sql);
+        db.query(sql, (err, result) => {
+          console.log('insideRoleQuery');
+          if (err) {
+            console.log(err)
+            return;
+          } else {
+            console.table(result.rows)
+            mainMenu();
+          }
+        });
+
+
+      }
+      else if (answers.action == "View all Employees") {
+        const sql = "SELECT * FROM employee";
         db.query(sql, (err, result) => {
           if (err) {
             console.log(err)
@@ -78,7 +87,7 @@ async function mainMenu () {
             mainMenu();
           }
         });
-  
+
       }
     })
     .catch(err => {
