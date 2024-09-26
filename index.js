@@ -62,9 +62,7 @@ async function mainMenu() {
       }
       else if (answers.action == "View all Roles") {
         const sql = "SELECT * FROM role";
-console.log('sql', sql);
         db.query(sql, (err, result) => {
-          console.log('insideRoleQuery');
           if (err) {
             console.log(err)
             return;
