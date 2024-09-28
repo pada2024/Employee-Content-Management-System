@@ -1,12 +1,12 @@
 
-
-
 // Import and require Pool (node-postgres)
 const { Pool } = require('pg');
 require("dotenv").config();
 const inquirer = require('inquirer');
+const { first } = require('rxjs');
 
 let db;
+
 
 // Connect to database
 async function connectDb() {
@@ -25,6 +25,28 @@ async function connectDb() {
 
   db = await pool.connect()
 }
+const addEmployeeQuestions = [
+  {
+    type: 'input',
+    name: 'firstName',
+    message: "Enter the employee's first name:",
+  },
+  {
+    type: 'input',
+    name: 'lastName',
+    message: "Enter the employee's last name:",
+  },
+  {
+    type: 'input',
+    name: 'roleId',
+    message: "Enter the employee's role ID:",
+  },
+  {
+    type: 'input',
+    name: 'managerId',
+    message: "Enter the employee's manager ID (leave blank if none):",
+  },
+];
 
 async function mainMenu() {
 
@@ -45,130 +67,136 @@ async function mainMenu() {
     ]
   }];
 
-  // Inquirer prompt 
-  inquirer
-    .prompt(actionQuestions)
-    .then((answers) => {
+  try {
+    //  Grab the action or what the user wants to do I.e add an employee
+    const answers = await inquirer
 
-      if (answers.action == "View all Departments") {
-        const sql = "SELECT * FROM department";
+      .prompt(actionQuestions);
 
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
+    if (answers.action == "View all Departments") {
+      const sql = "SELECT * FROM department";
 
-      }
-      else if (answers.action == "View all Roles") {
-        const sql = "SELECT * FROM role";
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
 
-
-      }
-      else if (answers.action == "View all Employees") {
-        const sql = "SELECT * FROM employee";
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
-
-      }
-
-      else if (answers.action == "Add an Employee") {
-        const sql = "INSERT INTO employee";
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
-
-      }
-
-      else if (answers.action == "Add a Department") {
-        const sql = "INSERT INTO department";
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
-
-      }
-
-      else if (answers.action == "Add an Employee's Role") {
-        const sql = "INSERT INTO department";
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
-
-      }
-
-      else if (answers.action == "Update an Employee's Role") {
-        const sql = "INSERT INTO department";
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(result.rows)
-            mainMenu();
-          }
-        });
-
-      }
-
-      else if (answers.action == "Delete an Employee") {
-        const sql = "DELETE FROM employee WHERE id = $1";
-        const params = [req.params.id];
-        db.query(sql, (err, result) => {
-          if (err) {
-            console.log(err)
-            return;
-          } else {
-            console.table(!result.rowCount)
-            mainMenu();
-          } 
-        });
-
-      }
-
-    })
-    .catch(err => {
-      console.log(err)
+    } else if (answers.action == "View all Roles") {
+      const sql = "SELECT * FROM role";
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
 
 
-    })
+    } else if (answers.action == "View all Employees") {
+      const sql = "SELECT * FROM employee";
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
+
+    } else if (answers.action == "Add an Employee") {
+      const { firstName, lastName, roleId, managerId } = await inquirer.prompt(addEmployeeQuestions);
+      console.log(firstName, lastName, roleId, managerId);
+
+      const query = `
+          INSERT INTO employee (first_name, last_name, role_id, manager_id)
+          VALUES ($1, $2, $3, $4)
+        `;
+
+
+      await db.query(query, [firstName, lastName, roleId, managerId || null]);
+
+      console.log('Employee added successfully!');
+      const sql = "INSERT INTO employee";
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
+
+    } else if (answers.action == "Add a Department") {
+      const sql = "INSERT INTO department";
+
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
+
+    } else if (answers.action == "Add an Employee's Role") {
+      const sql = "INSERT INTO department";
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
+
+    } else if (answers.action == "Update an Employee's Role") {
+      const sql = "INSERT INTO department";
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else {
+          console.table(result.rows)
+          mainMenu();
+        }
+      });
+
+    } else if (answers.action == "Delete an Employee") {
+      const sql = "DELETE FROM employee WHERE id = $1";
+      db.query(sql, params, (err, result) => {
+        if (err) {
+          console.log(err)
+          return;
+        } else if (!result.rowCount) {
+          res.json({
+            message: 'Employee not found'
+          });
+        } else {
+          res.json({
+            message: 'deleted',
+            changes: result.rowCount,
+            id: req.params.id
+          });
+        }
+        mainMenu();
+
+      });
+
+    }
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function init() {
@@ -177,49 +205,3 @@ async function init() {
 }
 
 init()
-
-// // Function to add an employee
-// async function addEmployee() {
-//   const employee = new Employee({
-//     // Your database configuration
-//   });
-
-//   await client.connect();
-
-//   const { firstName, lastName, roleId, managerId } = await inquirer.prompt([
-//     {
-//       type: 'input',
-//       name: 'firstName',
-//       message: "Enter the employee's first name:",
-//     },
-//     {
-//       type: 'input',
-//       name: 'lastName',
-//       message: "Enter the employee's last name:",
-//     },
-//     {
-//       type: 'input',
-//       name: 'roleId',
-//       message: "Enter the employee's role ID:",
-//     },
-//     {
-//       type: 'input',
-//       name: 'managerId',
-//       message: "Enter the employee's manager ID (leave blank if none):",
-//     },
-//   ]);
-
-//   const query = `
-//     INSERT INTO employee (first_name, last_name, role_id, manager_id)
-//     VALUES ($1, $2, $3, $4)
-//   `;
-
-//   await client.query(query, [firstName, lastName, roleId, managerId || null]);
-
-//   console.log('Employee added successfully!');
-
-//   await client.end();
-// }
-
-// // Call the function to add an employee
-// addEmployee();
