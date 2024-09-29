@@ -48,6 +48,15 @@ const addEmployeeQuestions = [
   },
 ];
 
+// Department Prompt
+const addDepartmentQuestions = [
+  {
+    type: 'input',
+    name: 'name',
+    message: "Enter the Department name:",
+  },
+];
+
 async function mainMenu() {
 
   const actionQuestions = [{
@@ -142,7 +151,24 @@ async function mainMenu() {
       });
 
     } else if (answers.action == "Add a Department") {
+      const { name, } = await inquirer.prompt(addDepartmentQuestions);
+      console.log(name);
       const sql = "INSERT INTO department";
+
+      await db.query(`
+        SELECT setval(pg_get_serial_sequence('department', 'id'), coalesce(max(id), 0) + 1, false) FROM department;
+    `);
+
+    const query = `
+    INSERT INTO department (name)
+    VALUES ($1)
+    RETURNING id
+`;
+      const result = await db.query(query, [name || null]);
+      const newDepartmentId = result.rows[0].id; 
+      console.log(`New department ID: ${newDepartmentId}`);
+
+      console.log('Department added successfully!');
 
       db.query(sql, (err, result) => {
         if (err) {
