@@ -115,13 +115,19 @@ async function mainMenu() {
       const { firstName, lastName, roleId, managerId } = await inquirer.prompt(addEmployeeQuestions);
       console.log(firstName, lastName, roleId, managerId);
 
+      // Code to resolve duplicate key error I was getting. This code manually resets the sequence to the maximum current ID in the employee table +1, to ensure a unique ID 
+      await db.query(`
+        SELECT setval(pg_get_serial_sequence('employee', 'id'), coalesce(max(id), 0) + 1, false) FROM employee;
+    `);
+
       const query = `
-          INSERT INTO employee (first_name, last_name, role_id, manager_id)
-          VALUES ($1, $2, $3, $4)
-        `;
-
-
-      await db.query(query, [firstName, lastName, roleId, managerId || null]);
+    INSERT INTO employee (first_name, last_name, role_id, manager_id)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id
+`;
+      const result = await db.query(query, [firstName, lastName, roleId, managerId || null]);
+      const newEmployeeId = result.rows[0].id; 
+      console.log(`New employee ID: ${newEmployeeId}`);
 
       console.log('Employee added successfully!');
       const sql = "INSERT INTO employee";
