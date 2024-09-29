@@ -56,6 +56,25 @@ const addDepartmentQuestions = [
     message: "Enter the Department name:",
   },
 ];
+// Role Prompt
+const addRoleQuestions = [
+  {
+    type: 'input',
+    name: 'title',
+    message: "Enter the title:",
+  },
+  {
+    type: 'input',
+    name: 'salary',
+    message: "Enter the salary:",
+  },
+  {
+    type: 'input',
+    name: 'departmentId',
+    message: "Enter new department ID (*must be unique):",
+  },
+
+];
 
 async function mainMenu() {
 
@@ -181,7 +200,26 @@ async function mainMenu() {
       });
 
     } else if (answers.action == "Add an Employee's Role") {
-      const sql = "INSERT INTO department";
+
+      const { title, salary, departmentId } = await inquirer.prompt(addRoleQuestions);
+      console.log(title, salary, departmentId);
+
+      // Code to resolve duplicate key error I was getting. This code manually resets the sequence to the maximum current ID in the employee table +1, to ensure a unique ID 
+      await db.query(`
+        SELECT setval(pg_get_serial_sequence('role', 'id'), coalesce(max(id), 0) + 1, false) FROM role;
+    `);
+
+      const query = `
+    INSERT INTO role (title, salary, department_id)
+    VALUES ($1, $2, $3)
+    RETURNING id
+`;
+      const result = await db.query(query, [title, salary, departmentId || null]);
+      const newRoleId = result.rows[0].id; 
+      console.log(`New Role ID: ${newRoleId}`);
+
+      console.log('New Role added successfully!');
+      const sql = "INSERT INTO role";
       db.query(sql, (err, result) => {
         if (err) {
           console.log(err)
